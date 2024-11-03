@@ -1,4 +1,230 @@
-import React, { useState, useRef } from 'react';
+import { useState, useEffect } from 'react';
+
+const xmlData = `
+  <?xml version="1.0" encoding="UTF-8"?>
+  <cookbook>
+    <dish>
+      <type>Суп</type>
+      <name>Борщ</name>
+      <measure>грам</measure>
+      <ingredient>
+        <name>Капуста</name>
+        <amount>200</amount>
+      </ingredient>
+      <ingredient>
+        <name>Буряк</name>
+        <amount>100</amount>
+      </ingredient>
+      <ingredient>
+        <name>М'ясо</name>
+        <amount>300</amount>
+      </ingredient>
+      <ingredient>
+        <name>Картопля</name>
+        <amount>200</amount>
+      </ingredient>
+      <recipe>Приготуйте бульйон з м'яса, додайте нарізану капусту, картоплю, буряк і варіть до готовності. Додайте приправи за смаком.</recipe>
+      <calories>400</calories>
+    </dish>
+
+    <dish>
+      <type>Салат</type>
+      <name>Олів'є</name>
+      <measure>грам</measure>
+      <ingredient>
+        <name>Картопля</name>
+        <amount>300</amount>
+      </ingredient>
+      <ingredient>
+        <name>Морква</name>
+        <amount>100</amount>
+      </ingredient>
+      <ingredient>
+        <name>Майонез</name>
+        <amount>100</amount>
+      </ingredient>
+      <ingredient>
+        <name>Ковбаса</name>
+        <amount>200</amount>
+      </ingredient>
+      <ingredient>
+        <name>Огірок</name>
+        <amount>100</amount>
+      </ingredient>
+      <recipe>Варіть картоплю та моркву, наріжте всі інгредієнти кубиками, змішайте з майонезом.</recipe>
+      <calories>500</calories>
+    </dish>
+
+    <dish>
+      <type>Основна страва</type>
+      <name>Котлета по-київськи</name>
+      <measure>штука</measure>
+      <ingredient>
+        <name>Куряче філе</name>
+        <amount>1</amount>
+      </ingredient>
+      <ingredient>
+        <name>Вершкове масло</name>
+        <amount>50</amount>
+      </ingredient>
+      <ingredient>
+        <name>Панірувальні сухарі</name>
+        <amount>100</amount>
+      </ingredient>
+      <recipe>Куряче філе начиніть маслом, обваляйте в сухарях, обсмажуйте на сковороді до золотистої скоринки.</recipe>
+      <calories>700</calories>
+    </dish>
+
+    <dish>
+      <type>Десерт</type>
+      <name>Наполеон</name>
+      <measure>грам</measure>
+      <ingredient>
+        <name>Листкове тісто</name>
+        <amount>500</amount>
+      </ingredient>
+      <ingredient>
+        <name>Вершковий крем</name>
+        <amount>300</amount>
+      </ingredient>
+      <ingredient>
+        <name>Цукор</name>
+        <amount>100</amount>
+      </ingredient>
+      <recipe>Розкачайте листкове тісто, випікайте шари, змащуйте вершковим кремом та складіть торт.</recipe>
+      <calories>900</calories>
+    </dish>
+
+    <dish>
+      <type>Основна страва</type>
+      <name>Плов</name>
+      <measure>грам</measure>
+      <ingredient>
+        <name>Рис</name>
+        <amount>300</amount>
+      </ingredient>
+      <ingredient>
+        <name>М'ясо</name>
+        <amount>400</amount>
+      </ingredient>
+      <ingredient>
+        <name>Морква</name>
+        <amount>100</amount>
+      </ingredient>
+      <ingredient>
+        <name>Цибуля</name>
+        <amount>100</amount>
+      </ingredient>
+      <recipe>Обсмажте м'ясо з цибулею та морквою, додайте рис, залийте водою та тушкуйте до готовності.</recipe>
+      <calories>600</calories>
+    </dish>
+
+    <dish>
+      <type>Суп</type>
+      <name>Курячий бульйон</name>
+      <measure>літр</measure>
+      <ingredient>
+        <name>Курка</name>
+        <amount>500</amount>
+      </ingredient>
+      <ingredient>
+        <name>Морква</name>
+        <amount>100</amount>
+      </ingredient>
+      <ingredient>
+        <name>Цибуля</name>
+        <amount>100</amount>
+      </ingredient>
+      <recipe>Варіть курку з морквою та цибулею на повільному вогні, додайте спеції за смаком.</recipe>
+      <calories>350</calories>
+    </dish>
+
+    <dish>
+      <type>Салат</type>
+      <name>Грецький салат</name>
+      <measure>грам</measure>
+      <ingredient>
+        <name>Огірок</name>
+        <amount>200</amount>
+      </ingredient>
+      <ingredient>
+        <name>Помідор</name>
+        <amount>200</amount>
+      </ingredient>
+      <ingredient>
+        <name>Сир фета</name>
+        <amount>150</amount>
+      </ingredient>
+      <ingredient>
+        <name>Оливки</name>
+        <amount>50</amount>
+      </ingredient>
+      <recipe>Наріжте овочі, додайте сир фета та оливки, приправте оливковою олією та орегано.</recipe>
+      <calories>300</calories>
+    </dish>
+
+    <dish>
+      <type>Десерт</type>
+      <name>Чізкейк</name>
+      <measure>грам</measure>
+      <ingredient>
+        <name>Печиво</name>
+        <amount>200</amount>
+      </ingredient>
+      <ingredient>
+        <name>Сир маскарпоне</name>
+        <amount>400</amount>
+      </ingredient>
+      <ingredient>
+        <name>Цукор</name>
+        <amount>100</amount>
+      </ingredient>
+      <recipe>Змішайте подрібнене печиво з маскарпоне та цукром, випікайте в духовці до готовності.</recipe>
+      <calories>800</calories>
+    </dish>
+
+    <dish>
+      <type>Основна страва</type>
+      <name>Смажена риба</name>
+      <measure>грам</measure>
+      <ingredient>
+        <name>Риба</name>
+        <amount>300</amount>
+      </ingredient>
+      <ingredient>
+        <name>Олія</name>
+        <amount>50</amount>
+      </ingredient>
+      <recipe>Обсмажте рибу на олії до золотистої скоринки, додайте приправи за смаком.</recipe>
+      <calories>450</calories>
+    </dish>
+
+    <dish>
+      <type>Салат</type>
+      <name>Цезар</name>
+      <measure>грам</measure>
+      <ingredient>
+        <name>Курка</name>
+        <amount>200</amount>
+      </ingredient>
+      <ingredient>
+        <name>Салат айсберг</name>
+        <amount>150</amount>
+      </ingredient>
+      <ingredient>
+        <name>Сир пармезан</name>
+        <amount>50</amount>
+      </ingredient>
+      <ingredient>
+        <name>Грінки</name>
+        <amount>50</amount>
+      </ingredient>
+      <recipe>Обсмажте курку, наріжте салат, додайте грінки та сир, заправте соусом цезар.</recipe>
+      <calories>400</calories>
+    </dish>
+    
+  </cookbook>
+`;
 
 const parseXML = (xml: Document) => {
   const dishes = Array.from(xml.getElementsByTagName('dish'));
@@ -28,36 +254,14 @@ const numberToWords = (num: string) => {
 
 const Home = () => {
   const [dishes, setDishes] = useState<any[]>([]);
-  const [error, setError] = useState<string | null>(null);
   const [displayMode, setDisplayMode] = useState<string>('text');
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-
-      reader.onload = (e) => {
-        const text = e.target?.result as string;
-        const parser = new DOMParser();
-        const xmlDoc = parser.parseFromString(text, 'application/xml');
-        const parsedDishes = parseXML(xmlDoc);
-        setDishes(parsedDishes);
-      };
-
-      reader.onerror = () => {
-        setError('Не вдалося прочитати файл');
-      };
-
-      reader.readAsText(file);
-    }
-  };
-
-  const handleButtonClick = () => {
-    if (fileInputRef.current) {
-      fileInputRef.current.click();
-    }
-  };
+  useEffect(() => {
+    const parser = new DOMParser();
+    const xmlDoc = parser.parseFromString(xmlData.trim(), 'application/xml');
+    const parsedDishes = parseXML(xmlDoc);
+    setDishes(parsedDishes);
+  }, []);
 
   const renderDishes = () => {
     switch (displayMode) {
@@ -165,19 +369,6 @@ const Home = () => {
     <div className="p-4">
       <h1 className="text-2xl font-bold mb-4">Список страв</h1>
       <div className="mb-4 space-x-4">
-        <button
-          onClick={handleButtonClick}
-          className="bg-blue-500 text-white px-4 py-2 rounded shadow hover:bg-blue-600 transition-colors"
-        >
-          Завантажити XML файл
-        </button>
-        <input
-          type="file"
-          accept=".xml"
-          onChange={handleFileChange}
-          ref={fileInputRef}
-          className="hidden"
-        />
         <select
           value={displayMode}
           onChange={(e) => setDisplayMode(e.target.value)}
@@ -189,11 +380,7 @@ const Home = () => {
         </select>
       </div>
 
-      {error ? (
-        <p className="text-red-500">{error}</p>
-      ) : (
-        renderDishes()
-      )}
+      { renderDishes() }
     </div>
   );
 };
